@@ -6,9 +6,9 @@ body:
   type: json
   content: "{\r
 
-    \    \"full_name\": \"Тёма Калмыков\",\r
+    \    \"full_name\": \"Максимов Максим\",\r
 
-    \    \"phone_number\": \"+79029648595\"\r
+    \    \"phone_number\": \"+79999999999\"\r
 
     }"
 order: 1776181652538

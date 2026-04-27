@@ -5,29 +5,29 @@ import (
 	"net/http"
 
 	core_logger "github.com/maksimablavatskii/Golang-ToDoap/internal/core/logger"
+	core_http_request "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/request"
 	core_http_response "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/response"
-	core_http_utils "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/utils"
 )
 
 type GetUSersResponse []UserDTOResponse
 
-func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r * http.Request) {
+func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
 	limit, offset, err := getLimitOffsetQueryParams(r)
-	if err != nil{
+	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to get 'limit'/'offset' query param")
 
-		return 
+		return
 	}
 
 	userDomains, err := h.usersService.GetUsers(ctx, limit, offset)
-	if err != nil{
-		 responseHandler.ErrorResponse(err, "failed to get users")
+	if err != nil {
+		responseHandler.ErrorResponse(err, "failed to get users")
 
-		 return
+		return
 	}
 
 	response := GetUSersResponse(usersDTOFromdomains(userDomains))
@@ -35,14 +35,18 @@ func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r * http.Request) {
 	responseHandler.JSONResponse(response, http.StatusOK)
 }
 
-func getLimitOffsetQueryParams(r *http.Request) (*int, *int, error){
-	limit, err := core_http_utils.GetIntQueryParam(r, "limit")
-	if err != nil{
+func getLimitOffsetQueryParams(r *http.Request) (*int, *int, error) {
+	const (
+		limitQueryParamKey  = "limit"
+		offsetQueryParamKey = "offset"
+	)
+	limit, err := core_http_request.GetIntQueryParam(r, limitQueryParamKey)
+	if err != nil {
 		return nil, nil, fmt.Errorf("get limit query param: %w", err)
 	}
 
-	offset, err := core_http_utils.GetIntQueryParam(r, "offset")
-	if err != nil{
+	offset, err := core_http_request.GetIntQueryParam(r, offsetQueryParamKey)
+	if err != nil {
 		return nil, nil, fmt.Errorf("get offset query param: %w", err)
 	}
 

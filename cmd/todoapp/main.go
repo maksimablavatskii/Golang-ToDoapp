@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	core_logger "github.com/maksimablavatskii/Golang-ToDoap/internal/core/logger"
-	core_postrgres_pool "github.com/maksimablavatskii/Golang-ToDoap/internal/core/repository/postgres/pool"
+	core_pgx_pool "github.com/maksimablavatskii/Golang-ToDoap/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/middleware"
 	core_http_server "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/server"
 	users_postgres_repository "github.com/maksimablavatskii/Golang-ToDoap/internal/features/users/repository/postgres"
@@ -31,20 +31,19 @@ func main() {
 	}
 	defer logger.Close()
 
-
 	logger.Debug("initializing postgres connection pool")
-	pool, err := core_postrgres_pool.NewConnectionPool(
+	pool, err := core_pgx_pool.NewPool(
 		ctx, 
-		core_postrgres_pool.NewConfigMust(),
+		core_pgx_pool.NewConfigMust(),
 	)
-	if err != nil{
+	if err != nil {
 		logger.Fatal("failed to init postgres connection pool", zap.Error(err))
 	}
 	defer pool.Close()
 
 	logger.Debug("initializing feature", zap.String("feature", "users"))
 	usersRepository := users_postgres_repository.NewUsersRepository(pool)
-	usersService :=  users_service.NewUsersService(usersRepository)
+	usersService := users_service.NewUsersService(usersRepository)
 	usersTransportHTTP := users_transport_http.NewUsersHTTPHandler(usersService)
 
 	logger.Debug("initializing HTTP server")
@@ -53,8 +52,8 @@ func main() {
 		logger,
 		core_http_middleware.RequestID(),
 		core_http_middleware.Logger(logger),
-		core_http_middleware.Panic(),
 		core_http_middleware.Trace(),
+		core_http_middleware.Panic(),
 	)
 	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)

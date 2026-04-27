@@ -1,4 +1,4 @@
-package core_postrgres_pool
+package core_pgx_pool
 
 import (
 	"fmt"
@@ -25,10 +25,10 @@ func NewConfig() (Config, error) {
 	return config, nil
 }
 
-func NewConfigMust() Config{
+func NewConfigMust() Config {
 	config, err := NewConfig()
 
-	if err != nil{
+	if err != nil {
 		err = fmt.Errorf("get Postgres connection pool config: %w", err)
 		panic(err)
 	}
