@@ -1,0 +1,14 @@
+$kind: http-request
+name: create_user
+url: "{{baseurl}}/users"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"full_name\": \"Максимов Максим\",\r
+
+    \    \"phone_number\": \"+79999999999\"\r
+
+    }"
+order: 1776181652538
