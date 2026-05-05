@@ -9,7 +9,7 @@ import (
 	core_http_response "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/response"
 )
 
-type GetUSersResponse []UserDTOResponse
+type GetUsersResponse []UserDTOResponse
 
 func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -30,7 +30,7 @@ func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := GetUSersResponse(usersDTOFromdomains(userDomains))
+	response := GetUsersResponse(usersDTOFromdomains(userDomains))
 
 	responseHandler.JSONResponse(response, http.StatusOK)
 }
