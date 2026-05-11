@@ -13,6 +13,9 @@ import (
 	core_pgx_pool "github.com/maksimablavatskii/Golang-ToDoap/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/middleware"
 	core_http_server "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/server"
+	statistics_postgres_repository "github.com/maksimablavatskii/Golang-ToDoap/internal/features/statistics/repository/postgres"
+	statistics_service "github.com/maksimablavatskii/Golang-ToDoap/internal/features/statistics/service"
+	statistics_transport_http "github.com/maksimablavatskii/Golang-ToDoap/internal/features/statistics/transport/http"
 	tasks_postgres_repository "github.com/maksimablavatskii/Golang-ToDoap/internal/features/tasks/repository/postgres"
 	tasks_service "github.com/maksimablavatskii/Golang-ToDoap/internal/features/tasks/service"
 	tasks_transport_http "github.com/maksimablavatskii/Golang-ToDoap/internal/features/tasks/transport/http"
@@ -65,6 +68,11 @@ func main() {
 	tasksService := tasks_service.NewTasksService(tasksRepository)
 	tasksTransportHTTP := tasks_transport_http.NewTasksHTTPHandler(tasksService)
 
+	logger.Debug("initializing feature", zap.String("feature", "statistics"))
+	statisticsRepository := statistics_postgres_repository.NewStatisticsRepository(pool)
+	statisticsService := statistics_service.NewStatisticsService(statisticsRepository)
+	statisticsTransportHTTP := statistics_transport_http.NewStatisticsHTTPHandler(statisticsService)
+
 	logger.Debug("initializing HTTP server")
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
@@ -77,6 +85,7 @@ func main() {
 	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
+	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRouters(apiVersionRouter)
 
 	if err := httpServer.Run(ctx); err != nil {
