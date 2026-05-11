@@ -1,8 +1,12 @@
 $kind: http-request
 name: patch_user
-url: "{{baseurl}}/users/3232323"
+url: "{{baseurl}}/users/4"
 method: PATCH
 body:
   type: json
-  content: "{}"
+  content: "{\r
+
+    \    \"phone_number\": \"+76767676767\"\r
+
+    }"
 order: 2019596831586235

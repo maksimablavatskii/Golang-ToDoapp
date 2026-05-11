@@ -1,5 +1,14 @@
 $kind: http-request
 name: create_tasks
-url: ""
-method: GET
+url: "{{baseurl}}/tasks"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"title\": \"Чтение\",\r
+
+    \    \"author_user_id\": 2\r
+
+    }"
 order: 1777384160456

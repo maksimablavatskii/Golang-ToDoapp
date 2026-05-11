@@ -1,0 +1,5 @@
+$kind: http-request
+name: get_statistics
+url: ""
+method: GET
+order: 1778508414613
