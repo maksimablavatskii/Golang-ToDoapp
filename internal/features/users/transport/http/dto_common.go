@@ -3,10 +3,10 @@ package users_transport_http
 import "github.com/maksimablavatskii/Golang-ToDoap/internal/core/domain"
 
 type UserDTOResponse struct {
-	ID          int     `json:"id"`
-	Version     int     `json:"version"`
-	FullName    string  `json:"full_name"`
-	PhoneNumber *string `json:"phone_number"`
+	ID          int     `json:"id" example:"10"`
+	Version     int     `json:"version" example:"3"`
+	FullName    string  `json:"full_name" example:"Ivan Ivanov"`
+	PhoneNumber *string `json:"phone_number" example:"+79998887766"`
 }
 
 func userDTOFromDomain(user domain.User) UserDTOResponse {
@@ -18,10 +18,10 @@ func userDTOFromDomain(user domain.User) UserDTOResponse {
 	}
 }
 
-func usersDTOFromdomains(users []domain.User) []UserDTOResponse{
+func usersDTOFromdomains(users []domain.User) []UserDTOResponse {
 	usersDTO := make([]UserDTOResponse, len(users))
-	
-	for i, user := range users{
+
+	for i, user := range users {
 		usersDTO[i] = userDTOFromDomain(user)
 	}
 
