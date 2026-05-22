@@ -9,8 +9,20 @@ import (
 	core_http_response "github.com/maksimablavatskii/Golang-ToDoap/internal/core/transport/http/response"
 )
 
-type GetTasksresponse []TaskDTOResponse
+type GetTasksResponse []TaskDTOResponse
 
+// GetTasks 	godoc
+// @Summary 	Список задач
+// @Description Просмотр списка задач с опциональной пагинацией и/или фильтрацией по ID автора задачи
+// @Tags 		tasks
+// @Produce 	json
+// @Param 		user_id query int false "Фильтрация задач по ID автора"
+// @Param 		limit query int false "Размер страницы с задачами"
+// @Param 		offset query int false "Смещение страницы с задачами"
+// @Success 	200 {object} GetTasksResponse "Список задач"
+// @Failure 	400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 	500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router 		/tasks [get]
 func (h *TasksHTTPHandler) GetTasks(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
@@ -30,7 +42,7 @@ func (h *TasksHTTPHandler) GetTasks(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := GetTasksresponse(tasksDTOFromdomains(tasksDomains))
+	response := GetTasksResponse(tasksDTOFromdomains(tasksDomains))
 
 	responseHandler.JSONResponse(response, http.StatusOK)
 }

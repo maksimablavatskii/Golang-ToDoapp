@@ -12,9 +12,9 @@ import (
 )
 
 type PatchTaskRequest struct {
-	Title       core_http_types.Nullable[string] `json:"title"`
-	Description core_http_types.Nullable[string] `json:"description"`
-	Completed   core_http_types.Nullable[bool]   `json:"completed"`
+	Title       core_http_types.Nullable[string] `json:"title" swaggertype:"string" example:"Погулять с собакой"`
+	Description core_http_types.Nullable[string] `json:"description" swaggertype:"string" example:"null"`
+	Completed   core_http_types.Nullable[bool]   `json:"completed" swaggertype:"boolean"`
 }
 
 func (r *PatchTaskRequest) Validate() error {
@@ -24,23 +24,23 @@ func (r *PatchTaskRequest) Validate() error {
 		}
 
 		titleLen := len([]rune(*r.Title.Value))
-		if titleLen < 1 || titleLen > 100{
+		if titleLen < 1 || titleLen > 100 {
 			return fmt.Errorf("`title` must be between 1 and 100 symbols")
 		}
 	}
 
-	if r.Description.Set{
-		if r.Description.Value != nil{
+	if r.Description.Set {
+		if r.Description.Value != nil {
 			descriptionLen := len([]rune(*r.Description.Value))
 
-			if descriptionLen < 1 || descriptionLen > 1000{
+			if descriptionLen < 1 || descriptionLen > 1000 {
 				return fmt.Errorf("`description` must be between 1 and 100 symbols")
 			}
 		}
 	}
 
-	if r.Completed.Set{
-		if r.Completed.Value == nil{
+	if r.Completed.Set {
+		if r.Completed.Value == nil {
 			return fmt.Errorf("`Completed` can't be NULL")
 		}
 	}
@@ -50,6 +50,25 @@ func (r *PatchTaskRequest) Validate() error {
 
 type PatchTaskResponse TaskDTOResponse
 
+// PatchTask 	godoc
+// @Summary 	Изменение задачи
+// @Description Изменение конкретной задачи в системе
+// @Description ### Логика обновления полей (Three-state logic):
+// @Description 1. **Поле не передано**: `description` игнорируется, значение в БД не меняется
+// @Description 2. **Явно передано значение**: `"description": "Утром в 6:30 выйти на пробежку"` - устанавливает описание в БД
+// @Description 3. **Передан null**: `"description": "null"` - очищает поле в бд (set to NULL)
+// @Description Ограничения: `title` и `completed` не может быть выставлен как null
+// @Tags 		tasks
+// @Accept 		json
+// @Produce		json
+// @Param 		id path int true "ID изменяемой задачи"
+// @Param 		request body PatchTaskRequest true "PatchTask тело запроса"
+// @Success 	200 {object} PatchTaskResponse "Задача успешно изменена"
+// @Failure 	400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 	404 {object} core_http_response.ErrorResponse "Task not found"
+// @Failure 	409 {object} core_http_response.ErrorResponse "Conflict"
+// @Failure 	500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router 		/tasks/{id} [patch]
 func (h *TasksHTTPHandler) PatchTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
@@ -72,7 +91,7 @@ func (h *TasksHTTPHandler) PatchTask(rw http.ResponseWriter, r *http.Request) {
 	taskPatch := taskPatchFromRequest(request)
 
 	taskDomain, err := h.tasksService.PatchTask(ctx, taskID, taskPatch)
-	if err != nil{
+	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to patch task")
 
 		return
@@ -83,7 +102,7 @@ func (h *TasksHTTPHandler) PatchTask(rw http.ResponseWriter, r *http.Request) {
 	responseHandler.JSONResponse(response, http.StatusOK)
 }
 
-func taskPatchFromRequest(request PatchTaskRequest) domain.TaskPatch{
+func taskPatchFromRequest(request PatchTaskRequest) domain.TaskPatch {
 	return domain.NewTaskPatch(
 		request.Title.ToDomain(),
 		request.Description.ToDomain(),
